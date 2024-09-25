@@ -1,17 +1,8 @@
-# Usa una imagen base de OpenJDK
+FROM maven:3.8.1-openjdk-17-slim AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
+
 FROM openjdk:17-jdk-alpine
-
-# Establece el mantenedor de la imagen
-LABEL maintainer="tu-email@dominio.com"
-
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
-
-# Copia el archivo JAR generado por Maven al contenedor
-COPY target/tu-aplicacion.jar app.jar
-
-# Expone el puerto en el que la aplicación se ejecutará
-EXPOSE 8080
-
-# Define el comando de entrada para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=build /home/app/target/ms-auth-0.0.1-SNAPSHOT.jar ms-auth-0.0.1.jar
+ENTRYPOINT ["java","-jar","/ms-auth-0.0.1.jar"]
