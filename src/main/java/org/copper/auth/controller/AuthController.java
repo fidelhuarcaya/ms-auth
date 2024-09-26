@@ -15,7 +15,7 @@ import org.copper.auth.service.auth.AuthService;
 
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
