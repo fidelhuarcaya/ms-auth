@@ -1,5 +1,6 @@
 package org.copper.auth.service.auth;
 
+import jakarta.transaction.Transactional;
 import org.copper.auth.common.RoleCode;
 import org.copper.auth.dto.request.LoginRequest;
 import org.copper.auth.dto.request.UserRequest;
@@ -45,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private long expirationTime;
 
     @Override
+    @Transactional
     public UserResponse register(UserRequest registerRequest) {
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         User user = userRepository.save(userMapper.dtoToEntity(registerRequest));
