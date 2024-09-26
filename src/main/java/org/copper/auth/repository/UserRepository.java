@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    boolean existsByEmail(@NonNull String email);
+    boolean existsByEmail(@NonNull @Param("email") String email);
 
     @Query("""
             SELECT u FROM User u LEFT JOIN FETCH u.userRoles
