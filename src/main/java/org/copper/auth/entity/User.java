@@ -23,16 +23,23 @@ public class User extends Auditable implements UserDetails {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "second_last_name")
+    private String secondLastName;
+
     @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "status")
-    private Integer status = 1;
+    @ManyToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    private Status status;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<UserRole> userRoles;
 
 

@@ -2,17 +2,20 @@ package org.copper.auth.service.auth;
 
 import jakarta.transaction.Transactional;
 import org.copper.auth.common.RoleCode;
+import org.copper.auth.common.StatusCode;
 import org.copper.auth.dto.request.LoginRequest;
 import org.copper.auth.dto.request.UserRequest;
 import org.copper.auth.dto.response.AuthResponse;
 import org.copper.auth.dto.response.UserResponse;
 import org.copper.auth.entity.Role;
+import org.copper.auth.entity.Status;
 import org.copper.auth.entity.User;
 import org.copper.auth.entity.UserRole;
 import org.copper.auth.exception.RequestException;
 import org.copper.auth.jwt.JwtService;
 import org.copper.auth.mapper.UserMapper;
 import org.copper.auth.repository.RoleRepository;
+import org.copper.auth.repository.StatusRepository;
 import org.copper.auth.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Jwts;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,19 +48,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${jwt.expiration-time}")
     private long expirationTime;
+    private final StatusRepository statusRepository;
 
     @Override
     @Transactional
     public UserResponse register(UserRequest registerRequest) {
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        User user = userRepository.save(userMapper.dtoToEntity(registerRequest));
 
+        Status status = statusRepository.findByCode(StatusCode.ACTIVE);
+        User user = userMapper.dtoToEntity(registerRequest);
+        user.setStatus(status);
+
+        List<UserRole> userRoleList = new ArrayList<>();
         UserRole userRole = new UserRole();
         userRole.setUser(user);
         Role role = roleRepository.findByCode(RoleCode.USER).orElseThrow(() -> new RuntimeException("El role no existe"));
         userRole.setRole(role);
+        userRoleList.add(userRole);
+        user.setUserRoles(userRoleList);
+        user = userRepository.save(user);
 
-        userRoleRepository.save(userRole);
         return userMapper.entityToDto(user);
     }
 
