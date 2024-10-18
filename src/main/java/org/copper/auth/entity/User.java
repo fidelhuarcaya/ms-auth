@@ -13,12 +13,15 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = {"email", "dni"}))
 public class User extends Auditable implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @Column(name = "dni", nullable = false)
+    private String dni;
 
     @Column(name = "name", nullable = false)
     private String name;
