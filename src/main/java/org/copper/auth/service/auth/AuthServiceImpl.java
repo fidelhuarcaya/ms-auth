@@ -73,9 +73,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) throws JsonProcessingException {
-        if (!userRepository.existsByEmail(loginRequest.getEmail())) {
-            throw new RequestException("User not exist.");
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RequestException("El usuario no existe"));
+
+        if (user.getStatus().getCode() != StatusCode.ACTIVE) {
+            throw new RequestException("El usuario no esta activo");
         }
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                 loginRequest.getPassword()));
 
