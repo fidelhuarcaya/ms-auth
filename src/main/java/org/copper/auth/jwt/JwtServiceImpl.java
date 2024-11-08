@@ -1,11 +1,11 @@
 package org.copper.auth.jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultClaims;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.copper.auth.entity.User;
 import org.copper.auth.exception.RequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Key;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,18 +25,18 @@ public class JwtServiceImpl implements JwtService {
     private long expirationTime;
 
     @Override
-    public String getToken(UserDetails userDetails, long currentTime) throws JsonProcessingException {
-        return getToken(generateClaims(userDetails), userDetails, currentTime);
+    public String getToken(User user, long currentTime) {
+        return getToken(generateClaims(user), user, currentTime);
     }
 
-    private String getToken(Map<String, Object> claims, UserDetails userDetails, long currentTime) {
-        if (claims == null || userDetails == null) {
+    private String getToken(Map<String, Object> claims, User user, long currentTime) {
+        if (claims == null || user == null) {
             throw new IllegalArgumentException("Claims and UserDetails must not be null");
         }
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date(currentTime))
                 .setExpiration(new Date(currentTime + expirationTime))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
@@ -94,12 +93,13 @@ public class JwtServiceImpl implements JwtService {
 
     }
 
-    private Claims generateClaims(UserDetails userDetails) {
+    private Claims generateClaims(User user) {
         Claims claims = new DefaultClaims();
-        claims.put("username", userDetails.getUsername());
-        List<String> roles = userDetails.getAuthorities().stream()
+        claims.put("username", user.getUsername());
+        List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).toList();
         claims.put("roles", roles);
+        claims.put("id", user.getId());
         return claims;
     }
 }

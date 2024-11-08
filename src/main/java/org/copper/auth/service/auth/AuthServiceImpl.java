@@ -95,8 +95,8 @@ public class AuthServiceImpl implements AuthService {
         Date expirationDate = new Date(currentTime + expirationTime);
         String formattedExpirationDate = dateFormat.format(expirationDate);
         return AuthResponse.builder()
-                .token(jwtService.getToken(userDetails, currentTime))
-                .type(Jwts.jwsHeader().getType())
+                .token(jwtService.getToken(user, currentTime))
+                .type(Jwts.jwsHeader().getAlgorithm())
                 .createAt(formattedCurrentDate)
                 .expirationDate(formattedExpirationDate)
                 .username(userDetails.getUsername())
