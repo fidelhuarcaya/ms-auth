@@ -20,6 +20,9 @@ public class UserRequest {
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
+    @NotBlank(message = "Dni no puede estar vacio")
+    private String dni;
+
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
